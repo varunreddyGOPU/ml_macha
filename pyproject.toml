@@ -6,6 +6,17 @@ build-backend = "setuptools.build_meta"
 name = "kfp-ml-library"
 version = "1.0.0"
 requires-python = ">=3.9"
+dynamic = [
+    "dependencies",
+    "optional-dependencies",
+    "readme",
+    "description",
+    "authors",
+    "classifiers",
+    "entry-points",
+    "scripts",
+    "urls",
+]
 
 [tool.black]
 line-length = 100
