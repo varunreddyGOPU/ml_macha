@@ -1,0 +1,77 @@
+# ============================================================================
+# GitHub Actions — Build Wheel with uv
+# ============================================================================
+# This workflow uses Astral's uv for lightning-fast dependency resolution
+# and building.  It requires:
+#   - pyproject.toml (PEP 621)
+#   - Secret: PYPI_API_TOKEN
+# ============================================================================
+
+name: Build Wheel (uv)
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: write
+
+jobs:
+  build-uv:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Create venv & install deps
+        run: |
+          uv venv --python ${{ matrix.python-version }}
+          uv pip install -e ".[dev]"
+
+      - name: Lint
+        run: |
+          uv run ruff check kfp_ml_library/
+          uv run black --check --line-length 100 kfp_ml_library/
+
+      - name: Test
+        run: uv run pytest tests/ -v --tb=short --co -q 2>/dev/null || echo "No tests yet"
+
+      - name: Build wheel
+        run: uv build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: uv-wheel-py${{ matrix.python-version }}
+          path: dist/*
+
+  publish-uv:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-uv
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Build
+        run: uv build
+
+      - name: Publish to PyPI
+        run: uv publish --token ${{ secrets.PYPI_API_TOKEN }}

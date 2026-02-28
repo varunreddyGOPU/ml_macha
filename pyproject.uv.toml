@@ -1,0 +1,130 @@
+# =============================================================================
+# pyproject.toml — uv variant (PEP 621 native)
+# =============================================================================
+# Copy this file to your project root as `pyproject.toml` if you choose
+# uv as your package manager.  uv reads standard PEP 621 metadata directly.
+# =============================================================================
+
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kfp-ml-library"
+version = "1.0.0"
+description = "A comprehensive Kubeflow Pipelines ML model deployment library"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.9"
+authors = [{ name = "KFP ML Library Team", email = "team@example.com" }]
+keywords = ["kubeflow", "kfp", "mlops", "machine-learning", "pipeline"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "kfp>=2.5.0",
+    "kfp-pipeline-spec>=0.3.0",
+    "pandas>=2.1.0",
+    "numpy>=1.26.0",
+    "pyarrow>=14.0.0",
+    "scipy>=1.11.0",
+    "scikit-learn>=1.3.0",
+    "xgboost>=2.0.0",
+    "optuna>=3.4.0",
+    "joblib>=1.3.0",
+    "pyyaml>=6.0.1",
+    "matplotlib>=3.8.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+tensorflow = ["tensorflow>=2.15.0"]
+pytorch = ["torch>=2.1.0", "torchvision>=0.16.0"]
+keras = ["keras>=3.0.0", "tensorflow>=2.15.0"]
+automl = ["flaml>=2.1.0"]
+automl-sklearn = ["auto-sklearn>=0.15.0"]
+gcp = [
+    "google-cloud-aiplatform>=1.38.0",
+    "google-cloud-build>=3.22.0",
+    "google-cloud-storage>=2.13.0",
+    "google-cloud-bigquery>=3.13.0",
+    "google-cloud-artifactregistry>=1.9.0",
+]
+all = [
+    "tensorflow>=2.15.0",
+    "torch>=2.1.0",
+    "torchvision>=0.16.0",
+    "flaml>=2.1.0",
+    "google-cloud-aiplatform>=1.38.0",
+    "google-cloud-build>=3.22.0",
+    "google-cloud-storage>=2.13.0",
+    "google-cloud-bigquery>=3.13.0",
+    "google-cloud-artifactregistry>=1.9.0",
+]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+]
+
+[project.scripts]
+kfp-ml = "kfp_ml_library:__version__"
+
+[project.urls]
+Homepage = "https://github.com/varunreddyGOPU/ml_macha"
+Repository = "https://github.com/varunreddyGOPU/ml_macha"
+Documentation = "https://github.com/varunreddyGOPU/ml_macha/blob/main/use.md"
+
+# ---------------------------------------------------------------------------
+# uv-specific config
+# ---------------------------------------------------------------------------
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+]
+
+# ---------------------------------------------------------------------------
+# Hatch build config
+# ---------------------------------------------------------------------------
+[tool.hatch.build.targets.wheel]
+packages = ["kfp_ml_library"]
+
+# ---------------------------------------------------------------------------
+# Tool configs
+# ---------------------------------------------------------------------------
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

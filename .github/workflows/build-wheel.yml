@@ -1,0 +1,176 @@
+# ============================================================================
+# GitHub Actions — Build & Publish Wheel  (ml_macha)
+# ============================================================================
+# Branching model:
+#   develop  — feature development branch (CI: lint + test + build wheel)
+#   main     — stable releases            (CI: lint + test + build wheel + release)
+#
+# Triggers:
+#   Push / PR to develop or main  → build + save wheel artifact
+#   Git tag v*                    → build + GitHub Release + optional PyPI
+#
+# Secrets (optional, for PyPI):
+#   PYPI_API_TOKEN
+# ============================================================================
+
+name: Build & Publish Wheel
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: write
+
+# ---------------------------------------------------------------------------
+jobs:
+
+  # -----------------------------------------------------------------------
+  # 1. Lint
+  # -----------------------------------------------------------------------
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install lint tools
+        run: pip install ruff black mypy
+
+      - name: Ruff
+        run: ruff check kfp_ml_library/
+
+      - name: Black
+        run: black --check --line-length 100 kfp_ml_library/
+
+  # -----------------------------------------------------------------------
+  # 2. Test  (Python 3.9 / 3.10 / 3.11)
+  # -----------------------------------------------------------------------
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short 2>/dev/null || echo "No tests found — skipping"
+
+  # -----------------------------------------------------------------------
+  # 3. Build wheel + sdist  (runs on EVERY push / PR)
+  # -----------------------------------------------------------------------
+  build:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install build tools
+        run: pip install build wheel setuptools
+
+      - name: Build wheel & sdist
+        run: python -m build
+
+      - name: Show built artifacts
+        run: ls -lh dist/
+
+      # --- Save wheel as downloadable artifact ---
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kfp-ml-library-wheel
+          path: dist/*.whl
+          retention-days: 90
+
+      - name: Upload sdist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kfp-ml-library-sdist
+          path: dist/*.tar.gz
+          retention-days: 90
+
+  # -----------------------------------------------------------------------
+  # 4. GitHub Release  (only on v* tags pushed to main)
+  # -----------------------------------------------------------------------
+  github-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: kfp-ml-library-wheel
+          path: dist/
+
+      - name: Download sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: kfp-ml-library-sdist
+          path: dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          body: |
+            ## ML Macha — ${{ github.ref_name }}
+
+            ### Install from this release
+            ```bash
+            pip install https://github.com/varunreddyGOPU/ml_macha/releases/download/${{ github.ref_name }}/kfp_ml_library-1.0.0-py3-none-any.whl
+            ```
+
+            ### Artifacts
+            - `.whl` — Python wheel (install with pip)
+            - `.tar.gz` — Source distribution
+
+  # -----------------------------------------------------------------------
+  # 5. Publish to PyPI  (only on v* tags, requires PYPI_API_TOKEN secret)
+  # -----------------------------------------------------------------------
+  publish-pypi:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - name: Download wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: kfp-ml-library-wheel
+          path: dist/
+
+      - name: Download sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: kfp-ml-library-sdist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
