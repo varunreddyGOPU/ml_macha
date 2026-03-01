@@ -15,7 +15,7 @@ version = "1.0.0"
 description = "A comprehensive Kubeflow Pipelines ML model deployment library"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.13"
 authors = [{ name = "KFP ML Library Team", email = "team@example.com" }]
 keywords = ["kubeflow", "kfp", "mlops", "machine-learning", "pipeline"]
 classifiers = [
@@ -54,7 +54,7 @@ gcp = [
     "google-cloud-build>=3.22.0",
     "google-cloud-storage>=2.13.0",
     "google-cloud-bigquery>=3.13.0",
-    "google-cloud-artifactregistry>=1.9.0",
+    "google-cloud-artifact-registry>=1.9.0",
 ]
 all = [
     "tensorflow>=2.15.0",
@@ -65,7 +65,7 @@ all = [
     "google-cloud-build>=3.22.0",
     "google-cloud-storage>=2.13.0",
     "google-cloud-bigquery>=3.13.0",
-    "google-cloud-artifactregistry>=1.9.0",
+    "google-cloud-artifact-registry>=1.9.0",
 ]
 dev = [
     "pytest>=7.4.0",

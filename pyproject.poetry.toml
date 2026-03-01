@@ -57,7 +57,7 @@ google-cloud-aiplatform = { version = ">=1.38.0", optional = true }
 google-cloud-build = { version = ">=3.22.0", optional = true }
 google-cloud-storage = { version = ">=2.13.0", optional = true }
 google-cloud-bigquery = { version = ">=3.13.0", optional = true }
-google-cloud-artifactregistry = { version = ">=1.9.0", optional = true }
+google-cloud-artifact-registry = { version = ">=1.9.0", optional = true }
 
 [tool.poetry.extras]
 tensorflow = ["tensorflow"]
@@ -70,7 +70,7 @@ gcp = [
     "google-cloud-build",
     "google-cloud-storage",
     "google-cloud-bigquery",
-    "google-cloud-artifactregistry",
+    "google-cloud-artifact-registry",
 ]
 all = [
     "tensorflow",
@@ -81,7 +81,7 @@ all = [
     "google-cloud-build",
     "google-cloud-storage",
     "google-cloud-bigquery",
-    "google-cloud-artifactregistry",
+    "google-cloud-artifact-registry",
 ]
 
 [tool.poetry.group.dev.dependencies]

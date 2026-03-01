@@ -23,7 +23,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/varunreddyGOPU/ml_macha",
     packages=find_packages(),
-    python_requires=">=3.9",
+    python_requires=">=3.9,<3.13",
     install_requires=requirements,
     extras_require={
         "tensorflow": ["tensorflow>=2.15.0"],
@@ -36,7 +36,7 @@ setup(
             "google-cloud-build>=3.22.0",
             "google-cloud-storage>=2.13.0",
             "google-cloud-bigquery>=3.13.0",
-            "google-cloud-artifactregistry>=1.9.0",
+            "google-cloud-artifact-registry>=1.9.0",
         ],
         "all": [
             "tensorflow>=2.15.0",
@@ -47,7 +47,7 @@ setup(
             "google-cloud-build>=3.22.0",
             "google-cloud-storage>=2.13.0",
             "google-cloud-bigquery>=3.13.0",
-            "google-cloud-artifactregistry>=1.9.0",
+            "google-cloud-artifact-registry>=1.9.0",
         ],
         "dev": [
             "pytest>=7.4.0",
